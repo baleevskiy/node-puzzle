@@ -11,7 +11,8 @@ exports.ip2long = (ip) ->
   return +ip[0] * 16777216 + +ip[1] * 65536 + +ip[2] * 256 + +ip[3]
 
 
-gindex = []
+gindex = {}
+ip_ranges_positions = []
 exports.load = ->
   data = fs.readFileSync "#{__dirname}/../data/geo.txt", 'utf8'
   data = data.toString().split '\n'
@@ -19,7 +20,33 @@ exports.load = ->
   for line in data when line
     line = line.split '\t'
     # GEO_FIELD_MIN, GEO_FIELD_MAX, GEO_FIELD_COUNTRY
-    gindex.push [+line[0], +line[1], line[3]]
+    gindex[line[0]] = [+line[0], +line[1], line[3]]
+    ip_ranges_positions.push +line[0]
+
+  ip_ranges_positions.sort(sortNumbers)
+
+
+sortNumbers = (i,j) ->
+  return i-j
+
+
+findClosest = (iplong) ->
+  max_pos = ip_ranges_positions.length - 1
+
+  min_pos = 0
+  while(true)
+    if(max_pos - min_pos> 1 && ip_ranges_positions[parseInt((max_pos + min_pos) / 2)] > iplong)
+      max_pos = parseInt((max_pos + min_pos) / 2)
+      continue;
+
+    if(max_pos - min_pos> 1 && ip_ranges_positions[parseInt((max_pos + min_pos) / 2)] <= iplong)
+      min_pos = parseInt((max_pos + min_pos) / 2)
+      continue
+
+    if(gindex[ip_ranges_positions[min_pos]][1] >= iplong && gindex[ip_ranges_positions[min_pos]][0] <= iplong )
+      return ip_ranges_positions[min_pos]
+
+    return null
 
 
 normalize = (row) -> country: row[GEO_FIELD_COUNTRY]
@@ -30,8 +57,9 @@ exports.lookup = (ip) ->
 
   find = this.ip2long ip
 
-  for line, i in gindex
-   if find >= line[GEO_FIELD_MIN] and find <= line[GEO_FIELD_MAX]
-    return normalize line
+  closest = findClosest find
+  if(closest == null)
+    return null
 
-  return null
+  return normalize gindex[closest]
+
