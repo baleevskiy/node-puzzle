@@ -8,8 +8,14 @@ describe 'reader', ->
     it 'should be memory efficient', ->
       heapUsageBefore = process.memoryUsage().heapUsed
       reader = require '../lib'
-      result = reader.countryCounter 'RU'
-      assert.equal result, 111054
+      reader.countryCounter(
+        'RU'
+        (result) ->
+          console.log('TESTRESULT' + result)
+          assert.equal result, 111054
+
+      )
+
       heapUsageAfter = process.memoryUsage().heapUsed
 
       heapUsageIncrease = heapUsageAfter / heapUsageBefore

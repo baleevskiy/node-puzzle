@@ -1,19 +1,24 @@
 fs = require 'fs'
+q = require 'Q'
+rl = require('readline')
 
-countryCounter = (countryCode) ->
-  data = fs.readFileSync "#{__dirname}/../data/geo.txt", 'utf8'
-  data = data.toString().split '\n'
-  counter = 0
 
-  for line in data when line
-    line = line.split '\t'
-    # GEO_FIELD_MIN, GEO_FIELD_MAX, GEO_FIELD_COUNTRY
-    # line[0],       line[1],       line[3]
-    
-    if line[3] == countryCode then counter++
+counter = (countryCode, cb) ->
+  rl createInterface
 
-  return counter
+for line in data when line
+  line = line.split '\t'
+  # GEO_FIELD_MIN, GEO_FIELD_MAX, GEO_FIELD_COUNTRY
+  # line[0],       line[1],       line[3]
 
-exports.countryCounter = (countryCode) ->
+  if(typeof counter[line[3]] != 'undefined')
+    counter[line[3]] += 1
+  else
+    counter[line[3]] = 1
+#if line[3] == countryCode then counter++
+
+console.log(counter)
+
+exports.countryCounter = (countryCode, cb) ->
   return null unless countryCode
-  return countryCounter countryCode
+  return counter(countryCode, cb)
