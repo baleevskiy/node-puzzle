@@ -26,6 +26,5 @@ function countryCounter(countryCode){
 
 
 exports.countryCounter = function (countryCode ,cb){
-    console.log('CALLED ' + countryCode)
-    res =  countryCounter(countryCode).then(cb)
+    countryCounter(countryCode).then(cb)
 }

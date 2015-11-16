@@ -11,7 +11,7 @@ describe 'reader', ->
       reader.countryCounter(
         'RU'
         (result) ->
-          console.log('TESTRESULT' + result)
+          console.log('TEST RESULT' + result)
           assert.equal result, 111054
 
       )
